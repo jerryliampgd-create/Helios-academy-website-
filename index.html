@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helios Academy — Chinese Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a2e;--red:#c0392b;--red-dk:#a93226;--gold:#c9a84c;
+  --paper:#faf8f3;--surface:#fff;--muted:#6b6b7a;
+  --border:#e8e3d8;--tag-bg:#f0ebe0;
+  --teal:#0f6e56;--teal-light:#e1f5ee;--blue:#185fa5;--blue-light:#e6f1fb;
+  --sun:#e08b2f;--sun-light:#fdf0e0;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.6}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+input,textarea,select{font-family:'DM Sans',sans-serif;font-size:14px}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-mark{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sun),var(--red));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px;fill:#fff}
+.logo-words{display:flex;flex-direction:column;line-height:1.2}
+.logo-name{font-size:15px;font-weight:600;font-family:'Noto Serif SC',serif}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-btn{background:none;border:none;padding:7px 15px;border-radius:7px;font-size:14px;color:var(--ink);transition:background .15s}
+.nav-btn:hover{background:var(--tag-bg)}
+.nav-btn.active{background:var(--tag-bg);font-weight:500}
+.nav-btn.admin-btn{border:1px dashed var(--border);color:var(--muted);font-size:13px}
+.nav-btn.admin-btn:hover{border-color:var(--gold);color:#8a6500;background:#fff8e1}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* HERO */
+.hero{padding:4rem 2rem 3rem;max-width:840px;margin:0 auto;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--sun-light);color:#a3661c;font-size:11px;font-weight:500;padding:4px 14px;border-radius:20px;margin-bottom:1.5rem;letter-spacing:.6px;text-transform:uppercase}
+.hero h1{font-family:'Noto Serif SC',serif;font-size:clamp(28px,5vw,48px);font-weight:600;line-height:1.2;margin-bottom:1rem}
+.hero h1 em{color:var(--red);font-style:normal}
+.hero p{font-size:16px;color:var(--muted);max-width:540px;margin:0 auto 2rem;font-weight:300;line-height:1.8}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-lg{padding:12px 26px;border-radius:8px;font-size:15px;font-weight:500;border:none;transition:all .15s;cursor:pointer}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dk)}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--ink)}.btn-ghost:hover{border-color:#aaa;background:var(--tag-bg)}
+
+/* COURSE GRID (home) */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:900px;margin:2.5rem auto 0;padding:0 1.5rem}
+.course-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:left;cursor:pointer;transition:all .15s}
+.course-card:hover{border-color:var(--red);box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px)}
+.course-icon{width:38px;height:38px;border-radius:10px;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:18px;color:var(--red);margin-bottom:.875rem}
+.course-name{font-size:16px;font-weight:600;margin-bottom:.25rem}
+.course-count{font-size:13px;color:var(--muted)}
+
+/* PRACTICE PAGE */
+.practice-wrap{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
+.pg-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem}
+.pg-crumb{font-size:13px;color:var(--muted);margin-bottom:.3rem}
+.pg-crumb a{color:var(--red);cursor:pointer}
+.pg-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600}
+.type-tabs{display:flex;gap:8px}
+.tab{padding:6px 16px;border-radius:20px;font-size:14px;border:1.5px solid var(--border);background:none;color:var(--muted);transition:all .15s;cursor:pointer}
+.tab.active,.tab:hover{border-color:var(--red);color:var(--red);background:#fff5f5}
+.prog-wrap{background:var(--tag-bg);border-radius:4px;height:6px;margin-bottom:1.75rem}
+.prog-fill{height:6px;background:var(--red);border-radius:4px;transition:width .4s}
+
+/* SCORE BANNER */
+.score-banner{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;text-align:center;display:none}
+.score-banner.show{display:block}
+.score-big{font-family:'Noto Serif SC',serif;font-size:52px;color:var(--red);font-weight:600;line-height:1}
+.score-sub{font-size:14px;color:var(--muted);margin-top:.4rem}
+.score-btns{display:flex;gap:10px;justify-content:center;margin-top:1.25rem;flex-wrap:wrap}
+
+/* QUESTION CARD */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;transition:box-shadow .2s}
+.q-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.q-head{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-bottom:1px solid var(--border)}
+.q-tags{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+.tag-R{background:var(--blue-light);color:var(--blue)}
+.tag-L{background:var(--teal-light);color:var(--teal)}
+.tag-lvl{background:var(--tag-bg);color:var(--muted)}
+.q-num-badge{font-size:12px;color:var(--muted)}
+.q-body{padding:1.25rem 1.25rem .5rem}
+.q-prompt{font-size:15px;line-height:1.75;margin-bottom:.875rem;white-space:pre-line}
+.passage-box{background:var(--tag-bg);border-radius:8px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid var(--gold)}
+.passage-cn{font-family:'Noto Serif SC',serif;font-size:17px;line-height:1.9;white-space:pre-line}
+.passage-py{font-size:13px;color:var(--muted);font-style:italic;line-height:1.6;margin-top:.4rem}
+/* AUDIO */
+.audio-bar{display:flex;align-items:center;gap:12px;background:var(--tag-bg);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem}
+.play-btn{width:36px;height:36px;border-radius:50%;background:var(--red);border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.play-btn:hover{background:var(--red-dk)}
+.play-btn svg{width:14px;height:14px;fill:#fff;pointer-events:none}
+.track{flex:1;height:5px;background:#ddd;border-radius:3px;cursor:pointer;position:relative}
+.track-fill{height:100%;width:0%;background:var(--red);border-radius:3px;transition:width .25s linear;pointer-events:none}
+.audio-dur{font-size:12px;color:var(--muted);white-space:nowrap}
+/* OPTIONS */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:.5rem}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;transition:all .15s;background:var(--surface);text-align:left;width:100%;cursor:pointer}
+.opt:hover:not(.disabled){border-color:var(--red);background:#fff5f5}
+.opt.selected{border-color:var(--red);background:#fff5f5}
+.opt.correct{border-color:var(--teal);background:var(--teal-light)}
+.opt.wrong{border-color:var(--red);background:#fff0f0}
+.opt.disabled{cursor:default}
+.opt-dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;color:var(--muted);transition:all .15s}
+.opt.selected .opt-dot{background:var(--red);border-color:var(--red);color:#fff}
+.opt.correct .opt-dot{background:var(--teal);border-color:var(--teal);color:#fff}
+.opt.wrong .opt-dot{background:var(--red);border-color:var(--red);color:#fff}
+.opt-inner{flex:1;min-width:0}
+.opt-cn{font-family:'Noto Serif SC',serif;font-size:16px;line-height:1.6}
+.opt-en{font-size:13px;color:var(--muted);line-height:1.5;margin-top:2px}
+/* EXPLANATION */
+.expl{display:none;margin:.875rem 0 .25rem;padding:.875rem 1rem;background:#f0faf5;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;font-size:13px;line-height:1.75}
+.expl.show{display:block}
+.expl strong{color:var(--teal)}
+/* VIDEO SOLUTION */
+.video-block{display:none;margin-top:1rem}
+.video-block.show{display:block}
+.video-label{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:6px}
+.video-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:10px;overflow:hidden;background:#000}
+.video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:none}
+/* CARD FOOTER */
+.q-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:.875rem 1.25rem;border-top:1px solid var(--border);margin-top:.75rem;flex-wrap:wrap}
+.q-foot-note{margin-right:auto;font-size:13px;font-weight:500}
+.btn-sm{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;border:1px solid var(--border);background:none;color:var(--ink);transition:all .15s;cursor:pointer}
+.btn-sm:hover{background:var(--tag-bg)}
+.btn-sm.red{background:var(--red);color:#fff;border-color:var(--red)}.btn-sm.red:hover{background:var(--red-dk)}
+.btn-sm.video-toggle{border-color:var(--sun);color:#a3661c;background:var(--sun-light)}
+.btn-sm.video-toggle:hover{background:#fbe3c2}
+
+/* ADMIN LOGIN */
+.login-wrap{max-width:380px;margin:0 auto;padding-top:4rem}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.login-head{text-align:center;margin-bottom:2rem}
+.login-mark{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--sun),var(--red));display:flex;align-items:center;justify-content:center;margin:0 auto .75rem}
+.login-mark svg{width:24px;height:24px;fill:#fff}
+
+/* ADMIN PANEL */
+.admin-wrap{max-width:880px;margin:0 auto;padding:2rem 1.5rem}
+.admin-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600;margin-bottom:.25rem}
+.admin-sub{font-size:14px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+.admin-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem;flex-wrap:wrap;gap:10px}
+.admin-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.admin-tab{padding:7px 18px;border-radius:20px;font-size:14px;border:1.5px solid var(--border);background:none;color:var(--muted);transition:all .15s;cursor:pointer}
+.admin-tab.active,.admin-tab:hover{border-color:var(--gold);color:#8a6500;background:#fff8e1}
+
+/* COURSE MANAGEMENT */
+.course-row{display:flex;align-items:center;gap:12px;padding:.875rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.course-row-name{flex:1;font-size:14px;font-weight:500}
+.course-row-count{font-size:12px;color:var(--muted)}
+.course-select-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+
+/* QUESTION LIST */
+.q-list{display:flex;flex-direction:column;gap:8px}
+.q-row{display:flex;align-items:center;gap:12px;padding:.875rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.q-row-type{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.q-row-text{flex:1;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-row-lvl{font-size:12px;color:var(--muted);white-space:nowrap}
+.q-row-video{font-size:11px;color:#a3661c;background:var(--sun-light);padding:2px 8px;border-radius:20px;white-space:nowrap}
+.q-row-btns{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer}
+.icon-btn:hover{background:var(--tag-bg)}
+.icon-btn.del:hover{background:#fff0f0;border-color:var(--red)}
+.icon-btn svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.8;pointer-events:none}
+.icon-btn.del svg{stroke:var(--red)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+.form-input,.form-select,.form-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--ink);background:var(--surface);transition:border .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--red)}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.form-hint{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.opts-section{margin-bottom:12px}
+.opts-label{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;display:block}
+.opt-input-row{display:grid;grid-template-columns:28px 1fr 1fr 32px;gap:8px;align-items:center;margin-bottom:8px}
+.opt-letter-badge{width:26px;height:26px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted)}
+.correct-radio{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;justify-self:center}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:.875rem;border-top:1px solid var(--border);margin-top:12px}
+.btn-gold{background:var(--gold);color:#fff;border:none;padding:9px 22px;border-radius:7px;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-gold:hover{background:#b0903e}
+.btn-cancel{background:none;border:1px solid var(--border);padding:9px 18px;border-radius:7px;font-size:14px;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-cancel:hover{background:var(--tag-bg)}
+
+/* data section */
+.data-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.data-title{font-size:15px;font-weight:500;margin-bottom:.5rem}
+.data-desc{font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.8}
+.data-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-teal{background:var(--teal);color:#fff;border:none;padding:9px 20px;border-radius:7px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-teal:hover{background:#0b5a45}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(26,26,46,.45);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:1.5rem}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.modal-title{font-size:17px;font-weight:500}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:none;font-size:18px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.modal-close:hover{background:var(--tag-bg)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;padding:.75rem 1.25rem;border-radius:8px;font-size:14px;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* FOOTER */
+footer{padding:2rem;text-align:center;border-top:1px solid var(--border);margin-top:3rem}
+.footer-logo{font-family:'Noto Serif SC',serif;font-size:18px;margin-bottom:.5rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.footer-note{font-size:13px;color:var(--muted)}
+
+.empty-state{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
+
+@media(max-width:600px){
+  nav{padding:0 1rem}
+  .form-grid{grid-template-columns:1fr}
+  .opt-input-row{grid-template-columns:28px 1fr 70px 32px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<!-- DATABASE SETUP SCREEN (shown once until connected) -->
+<div id="db-setup-screen" style="display:none;position:fixed;inset:0;background:var(--paper);z-index:1000;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="max-width:420px;width:100%">
+    <div style="text-align:center;margin-bottom:1.75rem">
+      <div class="login-mark" style="margin:0 auto .75rem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></svg></div>
+      <div class="admin-title" style="margin-bottom:.4rem">Connect Your Database</div>
+      <div class="admin-sub" style="margin-bottom:0;line-height:1.7">This only needs to be done once per browser/device. Paste your Supabase Project URL and anon key below.</div>
+    </div>
+    <div class="login-card">
+      <div class="form-group full" style="margin-bottom:12px">
+        <label class="form-label">Project URL</label>
+        <input class="form-input" id="db-url-input" type="text" placeholder="https://xxxxx.supabase.co">
+      </div>
+      <div class="form-group full" style="margin-bottom:14px">
+        <label class="form-label">Anon public key</label>
+        <input class="form-input" id="db-key-input" type="text" placeholder="eyJhbGciOi...">
+      </div>
+      <div id="db-setup-error" style="display:none;color:var(--red);font-size:13px;margin-bottom:12px"></div>
+      <button class="btn-gold" style="width:100%" onclick="connectDatabase()">Connect</button>
+      <div class="form-hint" style="margin-top:12px;text-align:center">Find these in Supabase: Settings → API</div>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL LOADING OVERLAY -->
+<div id="global-loading" style="display:none;position:fixed;inset:0;background:rgba(250,248,243,.7);z-index:900;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;font-size:14px;color:var(--muted);box-shadow:0 4px 16px rgba(0,0,0,.1)">Loading…</div>
+</div>
+
+<nav>
+  <div class="logo" onclick="show('home')">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><g stroke="#fff" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg></div>
+    <div class="logo-words">
+      <span class="logo-name">Helios Academy</span>
+      <span class="logo-sub">Chinese Language Program</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" id="nav-home" onclick="show('home')">Courses</button>
+    <button class="nav-btn admin-btn" id="nav-admin" onclick="show('admin')">🔒 Admin</button>
+  </div>
+</nav>
+
+<!-- HOME / COURSE SELECT -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-eyebrow">☀ Helios Academy</div>
+    <h1>Practice Chinese,<br><em>one course at a time</em></h1>
+    <p>Choose your course below for reading and listening multiple choice practice, complete with explanations and video walkthroughs.</p>
+  </div>
+  <div class="course-grid" id="course-grid"></div>
+</div>
+
+<!-- PRACTICE PAGE -->
+<div id="page-practice" class="page">
+  <div class="practice-wrap">
+    <div class="pg-header">
+      <div>
+        <div class="pg-crumb"><a onclick="show('home')">Courses</a> / <span id="crumb-course">—</span></div>
+        <div class="pg-title" id="practice-title">Practice</div>
+      </div>
+      <div class="type-tabs">
+        <button class="tab active" onclick="filterType('all',this)">All</button>
+        <button class="tab" onclick="filterType('R',this)">📖 Reading</button>
+        <button class="tab" onclick="filterType('L',this)">🎧 Listening</button>
+      </div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="score-banner" id="score-banner">
+      <div class="score-big" id="score-num">—</div>
+      <div class="score-sub" id="score-sub">questions answered correctly</div>
+      <div class="score-btns">
+        <button class="btn-lg btn-ghost" onclick="resetPractice()">Try again</button>
+      </div>
+    </div>
+    <div id="q-container"></div>
+  </div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div id="page-admin" class="page">
+
+  <!-- LOGIN GATE -->
+  <div id="admin-login-screen" class="login-wrap">
+    <div class="login-head">
+      <div class="login-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></svg></div>
+      <div class="admin-title" style="margin-bottom:.25rem">Admin Login</div>
+      <div class="admin-sub" style="margin-bottom:0">Enter the admin password to manage courses and questions.</div>
+    </div>
+    <div class="login-card">
+      <div class="form-group full" style="margin-bottom:14px">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="admin-pw-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+      </div>
+      <div id="admin-pw-error" style="display:none;color:var(--red);font-size:13px;margin-bottom:12px">Incorrect password. Try again.</div>
+      <button class="btn-gold" style="width:100%" onclick="tryAdminLogin()">Log In</button>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTENT -->
+  <div id="admin-content" class="admin-wrap" style="display:none">
+    <div class="admin-hdr">
+      <div>
+        <div class="admin-title">Admin Panel</div>
+        <div class="admin-sub" style="margin-bottom:0">Manage courses, questions, and video solutions.</div>
+      </div>
+      <button class="btn-sm" onclick="adminLogout()">Log Out</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="adminTab('courses',this)">Courses</button>
+      <button class="admin-tab" onclick="adminTab('questions',this)">Questions</button>
+      <button class="admin-tab" onclick="adminTab('data',this)">Import / Export</button>
+    </div>
+
+    <!-- COURSES TAB -->
+    <div id="admin-courses">
+      <div class="data-section">
+        <div class="data-title">Add a new course</div>
+        <div class="data-desc">Create a course like "Chinese 8" or "AP Chinese Prep". Students will see it on the home page once it has questions.</div>
+        <div class="data-actions">
+          <input class="form-input" id="new-course-name" type="text" placeholder="e.g. Chinese 11" style="max-width:240px">
+          <button class="btn-teal" onclick="addCourse()">+ Add Course</button>
+        </div>
+      </div>
+      <div id="course-list"></div>
+    </div>
+
+    <!-- QUESTIONS TAB -->
+    <div id="admin-questions" style="display:none">
+      <div class="course-select-bar">
+        <label class="form-label" style="margin:0">Editing course:</label>
+        <select class="form-select" id="admin-course-select" style="max-width:240px" onchange="renderAdminQuestions()"></select>
+        <button class="btn-sm red" onclick="openAddForm()">+ Add Question</button>
+      </div>
+      <div class="q-list" id="admin-q-list"></div>
+      <div class="empty-state" id="admin-empty" style="display:none">No questions yet in this course — click <strong>+ Add Question</strong> to get started.</div>
+    </div>
+
+    <!-- DATA TAB -->
+    <div id="admin-data" style="display:none">
+      <div class="data-section">
+        <div class="data-title">✓ You're connected to a live database</div>
+        <div class="data-desc" style="line-height:1.9">
+          Every course and question you add saves directly to your Supabase database. Anyone who visits your site — on any device — sees those changes immediately. No re-uploading files needed.
+        </div>
+      </div>
+      <div class="data-section">
+        <div class="data-title">Export a backup</div>
+        <div class="data-desc">Downloads a JSON copy of everything currently in your database — a safety backup in case you ever need to restore.</div>
+        <div class="data-actions"><button class="btn-teal" onclick="exportJSON()">⬇ Download backup.json</button></div>
+      </div>
+      <div class="data-section">
+        <div class="data-title">Import from backup</div>
+        <div class="data-desc">Upload a previously exported backup file. This <strong>adds</strong> those courses/questions into your live database (it won't delete anything already there).</div>
+        <div class="data-actions">
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)">
+          <button class="btn-teal" onclick="document.getElementById('import-file').click()">⬆ Upload backup.json</button>
+        </div>
+      </div>
+      <div class="data-section">
+        <div class="data-title">⚠️ Changing your admin password</div>
+        <div class="data-desc" style="line-height:2">
+          Open <code>index.html</code>, search for <code>const ADMIN_PASSWORD</code>, and replace the value with your own. Save and re-upload to GitHub.<br><br>
+          <strong>Note:</strong> this is a simple client-side lock — fine for keeping casual visitors out, but technically visible to anyone who views your page's source code. Don't reuse an important password here.
+        </div>
+      </div>
+      <div class="data-section">
+        <div class="data-title">Reconnecting on a new device</div>
+        <div class="data-desc" style="line-height:1.9">
+          The database connection (URL + key) is remembered per browser. If you open the Admin panel on a new computer or browser, you'll be asked to paste your Supabase URL and anon key again — find them in Supabase under <strong>Settings → API</strong>.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT QUESTION MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Add Question</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="f-type" onchange="toggleFormFields()">
+          <option value="R">📖 Reading</option>
+          <option value="L">🎧 Listening</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" id="f-level">
+          <option value="Introductory">Introductory</option>
+          <option value="Intermediate" selected>Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Instruction + Question text</label>
+        <textarea class="form-textarea" id="f-prompt" placeholder="e.g. Read the following passage. Then answer the question.&#10;&#10;Question: What is the main topic?"></textarea>
+      </div>
+      <div class="form-group full" id="f-passage-group">
+        <label class="form-label">Passage — Chinese text</label>
+        <textarea class="form-textarea" id="f-passage-cn" placeholder="Chinese passage..."></textarea>
+      </div>
+      <div class="form-group full" id="f-pinyin-group">
+        <label class="form-label">Pinyin (optional)</label>
+        <textarea class="form-textarea" id="f-passage-py" placeholder="Pinyin romanization..."></textarea>
+      </div>
+      <div class="form-group full" id="f-audio-group" style="display:none">
+        <label class="form-label">Audio URL (MP3)</label>
+        <input class="form-input" id="f-audio" type="text" placeholder="https://...">
+      </div>
+      <div class="form-group full" id="f-dur-group" style="display:none">
+        <label class="form-label">Audio duration (e.g. 1:24)</label>
+        <input class="form-input" id="f-audio-dur" type="text" placeholder="0:45">
+      </div>
+    </div>
+    <div class="opts-section">
+      <span class="opts-label">Answer options — Chinese · English · mark correct (✓)</span>
+      <div style="display:grid;grid-template-columns:28px 1fr 1fr 32px;gap:8px;margin-bottom:6px">
+        <div></div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Chinese</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">English</div>
+        <div style="font-size:11px;color:var(--muted);text-align:center">✓</div>
+      </div>
+      <div id="opt-rows"></div>
+    </div>
+    <div class="form-group full" style="margin-bottom:12px">
+      <label class="form-label">Explanation (shown after answering)</label>
+      <textarea class="form-textarea" id="f-expl" placeholder="Why is the correct answer right? Include key vocab, grammar notes..."></textarea>
+    </div>
+    <div class="form-group full" style="margin-bottom:4px">
+      <label class="form-label">Video solution URL (optional)</label>
+      <input class="form-input" id="f-video" type="text" placeholder="YouTube, Vimeo, or direct .mp4 link">
+      <div class="form-hint">Paste a YouTube link (youtube.com/watch?v=... or youtu.be/...), a Vimeo link, or a direct video file URL (.mp4, .webm). It will show as an embedded "Watch solution" video under the explanation.</div>
+    </div>
+    <input type="hidden" id="f-edit-id">
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="saveQuestion()">Save Question</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="footer-logo"><span>☀</span> Helios Academy</div>
+  <div class="footer-note">© 2025 Helios Academy · Chinese Language Program · Practice questions with video solutions</div>
+</footer>
+
+<script>
+// ============================================================
+// HELIOS ACADEMY — SUPABASE CONNECTION
+// Paste your Project URL + anon key into the connect screen the
+// first time you open the site (admin only sees this once per browser).
+// ============================================================
+let supabaseClient = null;
+
+function getSupabaseConfig() {
+  const url = localStorage.getItem('helios_sb_url');
+  const key = localStorage.getItem('helios_sb_key');
+  return (url && key) ? { url, key } : null;
+}
+
+function initSupabase() {
+  const cfg = getSupabaseConfig();
+  if (!cfg) return false;
+  try {
+    supabaseClient = supabase.createClient(cfg.url, cfg.key);
+    return true;
+  } catch (e) {
+    console.error('Supabase init failed', e);
+    return false;
+  }
+}
+
+function saveSupabaseConfig(url, key) {
+  localStorage.setItem('helios_sb_url', url.trim());
+  localStorage.setItem('helios_sb_key', key.trim());
+}
+
+// CHANGE THIS PASSWORD before publishing your site.
+const ADMIN_PASSWORD = 'Liam260575638';
+
+// ============================================================
+// STATE
+// ============================================================
+let data = { courses: [], questions: [] };
+let answered = {};
+let currentFilter = 'all';
+let currentCourseId = null;
+
+// ============================================================
+// DATA LOADING (from Supabase)
+// ============================================================
+async function loadData() {
+  if (!supabaseClient) { data = { courses: [], questions: [] }; return; }
+  showLoading(true);
+  try {
+    const { data: courses, error: cErr } = await supabaseClient
+      .from('courses').select('*').order('sort_order', { ascending: true });
+    if (cErr) throw cErr;
+
+    const { data: questions, error: qErr } = await supabaseClient
+      .from('questions').select('*').order('created_at', { ascending: true });
+    if (qErr) throw qErr;
+
+    data.courses = (courses || []).map(c => ({ id: c.id, name: c.name, sort_order: c.sort_order }));
+    data.questions = (questions || []).map(q => ({
+      id: q.id,
+      courseId: q.course_id,
+      type: q.type,
+      level: q.level,
+      prompt: q.prompt,
+      passage: q.passage || '',
+      passagePy: q.passage_py || '',
+      audio: q.audio_url || '',
+      audioDur: q.audio_dur || '',
+      options: q.options || [],
+      explanation: q.explanation || '',
+      video: q.video_url || ''
+    }));
+  } catch (e) {
+    console.error(e);
+    showToast('⚠ Could not load data: ' + (e.message || 'connection error'));
+  }
+  showLoading(false);
+}
+
+function showLoading(on) {
+  const el = document.getElementById('global-loading');
+  if (el) el.style.display = on ? 'flex' : 'none';
+}
+
+function genId(prefix) { return prefix + Date.now() + Math.floor(Math.random()*1000); }
+
+// ============================================================
+// DB CONNECTION GATE
+// ============================================================
+function checkDbConnection() {
+  if (!getSupabaseConfig()) {
+    document.getElementById('db-setup-screen').style.display = 'flex';
+    return false;
+  }
+  document.getElementById('db-setup-screen').style.display = 'none';
+  return true;
+}
+
+async function connectDatabase() {
+  const url = document.getElementById('db-url-input').value.trim();
+  const key = document.getElementById('db-key-input').value.trim();
+  const errEl = document.getElementById('db-setup-error');
+  errEl.style.display = 'none';
+  if (!url || !key) { errEl.textContent = 'Please fill in both fields.'; errEl.style.display = 'block'; return; }
+  if (!url.startsWith('https://') || !url.includes('supabase.co')) {
+    errEl.textContent = 'That doesn\'t look like a Supabase Project URL. It should look like https://xxxxx.supabase.co';
+    errEl.style.display = 'block';
+    return;
+  }
+  saveSupabaseConfig(url, key);
+  const ok = initSupabase();
+  if (!ok) { errEl.textContent = 'Could not connect. Double check your URL and key.'; errEl.style.display = 'block'; return; }
+  // test connection
+  try {
+    const { error } = await supabaseClient.from('courses').select('id').limit(1);
+    if (error) throw error;
+  } catch (e) {
+    errEl.textContent = 'Connected, but the database tables aren\'t set up yet. Run the SQL setup script in Supabase first.';
+    errEl.style.display = 'block';
+    return;
+  }
+  document.getElementById('db-setup-screen').style.display = 'none';
+  await loadData();
+  renderCourseGrid();
+  showToast('Database connected ✓');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function show(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nav-' + page);
+  if (nb) nb.classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'home') renderCourseGrid();
+  if (page === 'admin') showAdminGate();
+}
+
+function openCourse(courseId) {
+  currentCourseId = courseId;
+  currentFilter = 'all';
+  document.querySelectorAll('.type-tabs .tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  const course = data.courses.find(c => c.id === courseId);
+  document.getElementById('crumb-course').textContent = course ? course.name : '';
+  document.getElementById('practice-title').textContent = course ? course.name + ' Practice' : 'Practice';
+  show('practice');
+  renderPractice();
+}
+
+// ============================================================
+// HOME / COURSE GRID
+// ============================================================
+function renderCourseGrid() {
+  const grid = document.getElementById('course-grid');
+  if (!data.courses.length) {
+    grid.innerHTML = '<div class="empty-state">No courses yet. Log in as admin to add one.</div>';
+    return;
+  }
+  grid.innerHTML = data.courses.map(c => {
+    const count = data.questions.filter(q => q.courseId === c.id).length;
+    const initial = c.name.trim().charAt(0);
+    return `<div class="course-card" onclick="openCourse('${c.id}')">
+      <div class="course-icon">${initial}</div>
+      <div class="course-name">${esc(c.name)}</div>
+      <div class="course-count">${count} question${count===1?'':'s'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// PRACTICE
+// ============================================================
+function filterType(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.type-tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderPractice();
+}
+
+function getFiltered() {
+  let list = data.questions.filter(q => q.courseId === currentCourseId);
+  if (currentFilter !== 'all') list = list.filter(q => q.type === currentFilter);
+  return list;
+}
+
+function renderPractice() {
+  answered = {};
+  document.getElementById('score-banner').classList.remove('show');
+  document.getElementById('prog-fill').style.width = '0%';
+  const filtered = getFiltered();
+  const container = document.getElementById('q-container');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">No questions in this category yet.</div>';
+    return;
+  }
+  container.innerHTML = filtered.map((q, i) => buildCard(q, i, filtered.length)).join('');
+}
+
+function videoEmbedHtml(url) {
+  if (!url) return '';
+  url = url.trim();
+  let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{6,})/);
+  if (m) return `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
+  m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (m) return `<div class="video-wrap"><iframe src="https://player.vimeo.com/video/${m[1]}" allowfullscreen></iframe></div>`;
+  if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) return `<div class="video-wrap"><video src="${esc(url)}" controls></video></div>`;
+  return `<div class="video-wrap"><iframe src="${esc(url)}" allowfullscreen></iframe></div>`;
+}
+
+function buildCard(q, i, total) {
+  const typeCls = q.type === 'L' ? 'tag-L' : 'tag-R';
+  const typeLabel = q.type === 'L' ? '🎧 Listening' : '📖 Reading';
+  const letters = ['A','B','C','D','E'];
+
+  let inner = `<div class="q-head">
+    <div class="q-tags">
+      <span class="tag ${typeCls}">${typeLabel}</span>
+      <span class="tag tag-lvl">${esc(q.level)}</span>
+    </div>
+    <span class="q-num-badge">Q${i+1} / ${total}</span>
+  </div>
+  <div class="q-body">`;
+
+  inner += `<div class="q-prompt">${esc(q.prompt).replace(/\n/g,'<br>')}</div>`;
+
+  if (q.type === 'L') {
+    inner += `<div class="audio-bar">
+      <button class="play-btn" onclick="togglePlay('${q.id}')" aria-label="Play audio">
+        <svg viewBox="0 0 24 24" id="play-svg-${q.id}"><polygon points="5,3 19,12 5,21"/></svg>
+      </button>
+      <div class="track" onclick="scrubTrack(event,'${q.id}')"><div class="track-fill" id="fill-${q.id}"></div></div>
+      <span class="audio-dur" id="dur-${q.id}">0:00 / ${q.audioDur || '?'}</span>
+    </div>`;
+  }
+  if (q.type === 'R' && q.passage) {
+    inner += `<div class="passage-box">
+      <div class="passage-cn">${esc(q.passage)}</div>
+      ${q.passagePy ? `<div class="passage-py">${esc(q.passagePy)}</div>` : ''}
+    </div>`;
+  }
+
+  inner += `<div class="options" id="opts-${q.id}">`;
+  q.options.forEach((opt, oi) => {
+    inner += `<button class="opt" onclick="selectOpt('${q.id}',${oi},this)" data-correct="${opt.correct}">
+      <div class="opt-dot">${letters[oi]}</div>
+      <div class="opt-inner">
+        ${opt.cn ? `<div class="opt-cn">${esc(opt.cn)}</div>` : ''}
+        ${opt.en ? `<div class="opt-en">${esc(opt.en)}</div>` : ''}
+      </div>
+    </button>`;
+  });
+  inner += `</div>
+  <div class="expl" id="expl-${q.id}">${esc(q.explanation||'').replace(/\n/g,'<br>')}</div>`;
+
+  if (q.video) {
+    inner += `<div class="video-block" id="video-${q.id}">
+      <div class="video-label">🎬 Video solution</div>
+      ${videoEmbedHtml(q.video)}
+    </div>`;
+  }
+
+  inner += `</div>
+  <div class="q-foot">
+    <span class="q-foot-note" id="note-${q.id}"></span>
+    ${q.video ? `<button class="btn-sm video-toggle" id="vtbtn-${q.id}" style="display:none" onclick="toggleVideo('${q.id}')">▶ Watch solution</button>` : ''}
+    <button class="btn-sm red" id="check-${q.id}" onclick="checkAnswer('${q.id}')">Check answer</button>
+  </div>`;
+
+  return `<div class="q-card" id="card-${q.id}">${inner}</div>`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectOpt(qid, idx, el) {
+  const grp = document.getElementById('opts-' + qid);
+  if (!grp || grp.dataset.locked) return;
+  grp.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  grp._sel = idx;
+}
+
+function checkAnswer(qid) {
+  const grp = document.getElementById('opts-' + qid);
+  if (!grp) return;
+  if (grp._sel === undefined) { showToast('Please select an answer first'); return; }
+  grp.dataset.locked = '1';
+  const opts = grp.querySelectorAll('.opt');
+  opts.forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+  const isCorrect = opts[grp._sel].dataset.correct === 'true';
+  opts.forEach(o => { o.classList.remove('selected'); if (o.dataset.correct === 'true') o.classList.add('correct'); });
+  if (!isCorrect) opts[grp._sel].classList.add('wrong');
+  const expl = document.getElementById('expl-' + qid);
+  if (expl) expl.classList.add('show');
+  const btn = document.getElementById('check-' + qid);
+  if (btn) btn.style.display = 'none';
+  const vbtn = document.getElementById('vtbtn-' + qid);
+  if (vbtn) vbtn.style.display = 'inline-block';
+  const note = document.getElementById('note-' + qid);
+  if (note) { note.textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect — see explanation'; note.style.color = isCorrect ? 'var(--teal)' : 'var(--red)'; }
+  answered[qid] = isCorrect;
+  updateProgress();
+}
+
+function toggleVideo(qid) {
+  const block = document.getElementById('video-' + qid);
+  const btn = document.getElementById('vtbtn-' + qid);
+  if (!block) return;
+  const showing = block.classList.toggle('show');
+  if (btn) btn.textContent = showing ? '✕ Hide solution' : '▶ Watch solution';
+}
+
+function updateProgress() {
+  const filtered = getFiltered();
+  const done = Object.keys(answered).length;
+  const total = filtered.length;
+  const pct = total ? (done / total) * 100 : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  if (done === total && total > 0) {
+    const correct = Object.values(answered).filter(Boolean).length;
+    document.getElementById('score-num').textContent = correct + '/' + total;
+    document.getElementById('score-sub').textContent = `correct — ${Math.round(correct/total*100)}%`;
+    const banner = document.getElementById('score-banner');
+    banner.classList.add('show');
+    banner.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+
+function resetPractice() {
+  answered = {};
+  document.getElementById('score-banner').classList.remove('show');
+  renderPractice();
+  window.scrollTo(0,0);
+}
+
+// ============================================================
+// AUDIO PLAYER (simulated)
+// ============================================================
+let playerTimers = {};
+function togglePlay(qid) {
+  const svg = document.getElementById('play-svg-' + qid);
+  if (playerTimers[qid]) {
+    clearInterval(playerTimers[qid].timer);
+    delete playerTimers[qid];
+    svg.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+    return;
+  }
+  svg.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  let pct = 0;
+  const fill = document.getElementById('fill-' + qid);
+  const dur = document.getElementById('dur-' + qid);
+  const q = data.questions.find(q => q.id === qid);
+  const totalLabel = q ? (q.audioDur || '1:00') : '1:00';
+  const parts = totalLabel.split(':').map(Number);
+  const totalSecs = (parts[0]||0)*60 + (parts[1]||0);
+  playerTimers[qid] = {};
+  playerTimers[qid].timer = setInterval(() => {
+    pct += 0.4;
+    if (fill) fill.style.width = Math.min(pct,100) + '%';
+    const elapsed = Math.round(pct / 100 * totalSecs);
+    const em = Math.floor(elapsed/60), es = elapsed%60;
+    if (dur) dur.textContent = `${em}:${es<10?'0'+es:es} / ${totalLabel}`;
+    if (pct >= 100) {
+      clearInterval(playerTimers[qid].timer);
+      delete playerTimers[qid];
+      svg.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+    }
+  }, 200);
+}
+function scrubTrack(e, qid) {
+  const track = e.currentTarget;
+  const rect = track.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+  const fill = document.getElementById('fill-' + qid);
+  if (fill) fill.style.width = pct + '%';
+}
+
+// ============================================================
+// ADMIN LOGIN
+// ============================================================
+function showAdminGate() {
+  const loggedIn = sessionStorage.getItem('helios_admin') === '1';
+  document.getElementById('admin-login-screen').style.display = loggedIn ? 'none' : 'block';
+  document.getElementById('admin-content').style.display = loggedIn ? 'block' : 'none';
+  document.getElementById('admin-pw-error').style.display = 'none';
+  document.getElementById('admin-pw-input').value = '';
+  if (loggedIn) { renderAdminCourses(); populateCourseSelect(); renderAdminQuestions(); }
+  else setTimeout(() => document.getElementById('admin-pw-input').focus(), 50);
+}
+function tryAdminLogin() {
+  const val = document.getElementById('admin-pw-input').value;
+  if (val === ADMIN_PASSWORD) {
+    sessionStorage.setItem('helios_admin', '1');
+    showAdminGate();
+  } else {
+    document.getElementById('admin-pw-error').style.display = 'block';
+  }
+}
+function adminLogout() {
+  sessionStorage.removeItem('helios_admin');
+  showAdminGate();
+}
+
+// ============================================================
+// ADMIN TABS
+// ============================================================
+function adminTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('admin-courses').style.display = tab === 'courses' ? 'block' : 'none';
+  document.getElementById('admin-questions').style.display = tab === 'questions' ? 'block' : 'none';
+  document.getElementById('admin-data').style.display = tab === 'data' ? 'block' : 'none';
+  if (tab === 'questions') { populateCourseSelect(); renderAdminQuestions(); }
+}
+
+// ============================================================
+// ADMIN: COURSES
+// ============================================================
+function renderAdminCourses() {
+  const list = document.getElementById('course-list');
+  if (!data.courses.length) {
+    list.innerHTML = '<div class="empty-state">No courses yet — add one above.</div>';
+    return;
+  }
+  list.innerHTML = data.courses.map(c => {
+    const count = data.questions.filter(q => q.courseId === c.id).length;
+    return `<div class="course-row">
+      <span class="course-row-name">${esc(c.name)}</span>
+      <span class="course-row-count">${count} question${count===1?'':'s'}</span>
+      <div class="q-row-btns">
+        <button class="icon-btn" onclick="renameCourse('${c.id}')" title="Rename">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn del" onclick="deleteCourse('${c.id}')" title="Delete">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addCourse() {
+  const input = document.getElementById('new-course-name');
+  const name = input.value.trim();
+  if (!name) { showToast('Please enter a course name'); return; }
+  showLoading(true);
+  try {
+    const maxOrder = data.courses.reduce((m,c) => Math.max(m, c.sort_order||0), 0);
+    const { data: inserted, error } = await supabaseClient
+      .from('courses').insert({ name, sort_order: maxOrder + 1 }).select().single();
+    if (error) throw error;
+    data.courses.push({ id: inserted.id, name: inserted.name, sort_order: inserted.sort_order });
+    input.value = '';
+    renderAdminCourses();
+    populateCourseSelect();
+    showToast('Course added ✓');
+  } catch (e) {
+    showToast('⚠ ' + (e.message && e.message.includes('duplicate') ? 'A course with that name already exists' : 'Could not add course'));
+  }
+  showLoading(false);
+}
+
+async function renameCourse(id) {
+  const course = data.courses.find(c => c.id === id);
+  if (!course) return;
+  const newName = prompt('Rename course:', course.name);
+  if (!newName || !newName.trim()) return;
+  showLoading(true);
+  try {
+    const { error } = await supabaseClient.from('courses').update({ name: newName.trim() }).eq('id', id);
+    if (error) throw error;
+    course.name = newName.trim();
+    renderAdminCourses();
+    populateCourseSelect();
+    showToast('Course renamed ✓');
+  } catch (e) {
+    showToast('⚠ Could not rename course');
+  }
+  showLoading(false);
+}
+
+async function deleteCourse(id) {
+  const course = data.courses.find(c => c.id === id);
+  const count = data.questions.filter(q => q.courseId === id).length;
+  const msg = count > 0
+    ? `Delete "${course.name}"? This will also delete ${count} question(s) in it. This cannot be undone.`
+    : `Delete "${course.name}"? This cannot be undone.`;
+  if (!confirm(msg)) return;
+  showLoading(true);
+  try {
+    const { error } = await supabaseClient.from('courses').delete().eq('id', id);
+    if (error) throw error;
+    data.courses = data.courses.filter(c => c.id !== id);
+    data.questions = data.questions.filter(q => q.courseId !== id);
+    renderAdminCourses();
+    populateCourseSelect();
+    renderAdminQuestions();
+    showToast('Course deleted');
+  } catch (e) {
+    showToast('⚠ Could not delete course');
+  }
+  showLoading(false);
+}
+
+// ============================================================
+// ADMIN: QUESTIONS
+// ============================================================
+function populateCourseSelect() {
+  const sel = document.getElementById('admin-course-select');
+  const prev = sel.value;
+  sel.innerHTML = data.courses.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if (data.courses.find(c => c.id === prev)) sel.value = prev;
+  else if (data.courses.length) sel.value = data.courses[0].id;
+}
+
+function getSelectedAdminCourseId() {
+  const sel = document.getElementById('admin-course-select');
+  return sel ? sel.value : null;
+}
+
+function renderAdminQuestions() {
+  const courseId = getSelectedAdminCourseId();
+  const list = document.getElementById('admin-q-list');
+  const empty = document.getElementById('admin-empty');
+  const qs = data.questions.filter(q => q.courseId === courseId);
+  if (!qs.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = qs.map(q => {
+    const tc = q.type === 'L' ? 'tag-L' : 'tag-R';
+    const tl = q.type === 'L' ? 'Listening' : 'Reading';
+    const preview = (q.prompt||'').split('\n')[0].slice(0, 60) + ((q.prompt||'').length > 60 ? '…' : '');
+    return `<div class="q-row">
+      <span class="q-row-type tag ${tc}">${tl}</span>
+      <span class="q-row-text" title="${esc(q.prompt)}">${esc(preview)}</span>
+      <span class="q-row-lvl">${esc(q.level)}</span>
+      ${q.video ? '<span class="q-row-video">🎬 video</span>' : ''}
+      <div class="q-row-btns">
+        <button class="icon-btn" onclick="editQ('${q.id}')" title="Edit">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn del" onclick="delQ('${q.id}')" title="Delete">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// QUESTION FORM
+// ============================================================
+function buildOptRows(opts) {
+  const letters = ['A','B','C','D'];
+  document.getElementById('opt-rows').innerHTML = (opts || [{},{},{},{}]).map((o,i) => `
+    <div class="opt-input-row">
+      <div class="opt-letter-badge">${letters[i]}</div>
+      <input class="form-input" id="oc${i}" type="text" value="${esc(o.cn||'')}" placeholder="Chinese">
+      <input class="form-input" id="oe${i}" type="text" value="${esc(o.en||'')}" placeholder="English">
+      <input type="radio" name="correct" class="correct-radio" value="${i}" ${o.correct?'checked':''} title="Correct answer">
+    </div>`).join('');
+}
+
+function toggleFormFields() {
+  const t = document.getElementById('f-type').value;
+  ['f-passage-group','f-pinyin-group'].forEach(id => document.getElementById(id).style.display = t==='R'?'flex':'none');
+  ['f-audio-group','f-dur-group'].forEach(id => document.getElementById(id).style.display = t==='L'?'flex':'none');
+}
+
+function openAddForm() {
+  if (!data.courses.length) { showToast('Add a course first'); return; }
+  document.getElementById('modal-title').textContent = 'Add Question';
+  ['f-prompt','f-passage-cn','f-passage-py','f-audio','f-audio-dur','f-expl','f-video'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-type').value = 'R';
+  document.getElementById('f-level').value = 'Intermediate';
+  document.getElementById('f-edit-id').value = '';
+  buildOptRows([{},{},{},{}]);
+  toggleFormFields();
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function editQ(id) {
+  const q = data.questions.find(q => q.id === id);
+  if (!q) return;
+  document.getElementById('modal-title').textContent = 'Edit Question';
+  document.getElementById('f-type').value = q.type;
+  document.getElementById('f-level').value = q.level;
+  document.getElementById('f-prompt').value = q.prompt;
+  document.getElementById('f-passage-cn').value = q.passage||'';
+  document.getElementById('f-passage-py').value = q.passagePy||'';
+  document.getElementById('f-audio').value = q.audio||'';
+  document.getElementById('f-audio-dur').value = q.audioDur||'';
+  document.getElementById('f-expl').value = q.explanation||'';
+  document.getElementById('f-video').value = q.video||'';
+  document.getElementById('f-edit-id').value = id;
+  buildOptRows(q.options);
+  toggleFormFields();
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+
+async function saveQuestion() {
+  const courseId = getSelectedAdminCourseId();
+  if (!courseId) { showToast('Select a course first'); return; }
+  const type = document.getElementById('f-type').value;
+  const prompt = document.getElementById('f-prompt').value.trim();
+  const expl = document.getElementById('f-expl').value.trim();
+  const video = document.getElementById('f-video').value.trim();
+  if (!prompt) { showToast('Please enter question text'); return; }
+  const opts = [0,1,2,3].map(i => ({
+    cn: document.getElementById('oc'+i).value.trim(),
+    en: document.getElementById('oe'+i).value.trim(),
+    correct: document.querySelector(`input[name="correct"][value="${i}"]`).checked
+  }));
+  if (!opts.some(o => o.correct)) { showToast('Please mark the correct answer (✓)'); return; }
+
+  const row = {
+    course_id: courseId,
+    type,
+    level: document.getElementById('f-level').value,
+    prompt,
+    explanation: expl,
+    video_url: video,
+    passage: document.getElementById('f-passage-cn').value.trim(),
+    passage_py: document.getElementById('f-passage-py').value.trim(),
+    audio_url: document.getElementById('f-audio').value.trim(),
+    audio_dur: document.getElementById('f-audio-dur').value.trim(),
+    options: opts
+  };
+
+  const eid = document.getElementById('f-edit-id').value;
+  showLoading(true);
+  try {
+    if (eid) {
+      const { error } = await supabaseClient.from('questions').update(row).eq('id', eid);
+      if (error) throw error;
+      const idx = data.questions.findIndex(qq => qq.id === eid);
+      if (idx >= 0) {
+        data.questions[idx] = {
+          id: eid, courseId, type, level: row.level, prompt, explanation: expl, video,
+          passage: row.passage, passagePy: row.passage_py, audio: row.audio_url, audioDur: row.audio_dur, options: opts
+        };
+      }
+    } else {
+      const { data: inserted, error } = await supabaseClient.from('questions').insert(row).select().single();
+      if (error) throw error;
+      data.questions.push({
+        id: inserted.id, courseId, type, level: row.level, prompt, explanation: expl, video,
+        passage: row.passage, passagePy: row.passage_py, audio: row.audio_url, audioDur: row.audio_dur, options: opts
+      });
+    }
+    closeModal(); renderAdminQuestions(); renderAdminCourses();
+    showToast(eid ? 'Question updated ✓' : 'Question added ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('⚠ Could not save question');
+  }
+  showLoading(false);
+}
+
+async function delQ(id) {
+  if (!confirm('Delete this question? This cannot be undone.')) return;
+  showLoading(true);
+  try {
+    const { error } = await supabaseClient.from('questions').delete().eq('id', id);
+    if (error) throw error;
+    data.questions = data.questions.filter(q => q.id !== id);
+    renderAdminQuestions(); renderAdminCourses();
+    showToast('Question deleted');
+  } catch (e) {
+    showToast('⚠ Could not delete question');
+  }
+  showLoading(false);
+}
+
+// ============================================================
+// IMPORT / EXPORT (still useful as a manual backup)
+// ============================================================
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
+}
+
+async function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  if (!confirm('This will add the imported courses and questions to your database (it will not delete existing ones). Continue?')) {
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed.courses || !parsed.questions) throw new Error('File must have "courses" and "questions"');
+      showLoading(true);
+
+      // map old course ids -> new inserted ids
+      const idMap = {};
+      for (const c of parsed.courses) {
+        const exists = data.courses.find(dc => dc.name === c.name);
+        if (exists) { idMap[c.id] = exists.id; continue; }
+        const maxOrder = data.courses.reduce((m,dc) => Math.max(m, dc.sort_order||0), 0);
+        const { data: inserted, error } = await supabaseClient
+          .from('courses').insert({ name: c.name, sort_order: maxOrder + 1 }).select().single();
+        if (error) throw error;
+        idMap[c.id] = inserted.id;
+        data.courses.push({ id: inserted.id, name: inserted.name, sort_order: inserted.sort_order });
+      }
+
+      for (const q of parsed.questions) {
+        const newCourseId = idMap[q.courseId] || q.courseId;
+        const row = {
+          course_id: newCourseId, type: q.type, level: q.level, prompt: q.prompt,
+          explanation: q.explanation || '', video_url: q.video || '',
+          passage: q.passage || '', passage_py: q.passagePy || '',
+          audio_url: q.audio || '', audio_dur: q.audioDur || '', options: q.options || []
+        };
+        const { data: inserted, error } = await supabaseClient.from('questions').insert(row).select().single();
+        if (error) throw error;
+        data.questions.push({
+          id: inserted.id, courseId: newCourseId, type: q.type, level: q.level, prompt: q.prompt,
+          explanation: q.explanation||'', video: q.video||'', passage: q.passage||'', passagePy: q.passagePy||'',
+          audio: q.audio||'', audioDur: q.audioDur||'', options: q.options||[]
+        });
+      }
+
+      renderAdminCourses(); populateCourseSelect(); renderAdminQuestions();
+      showToast('Imported successfully ✓');
+    } catch(err) {
+      console.error(err);
+      alert('Error: ' + err.message);
+    }
+    showLoading(false);
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+document.getElementById('modal-bg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+async function initApp() {
+  if (checkDbConnection()) {
+    initSupabase();
+    await loadData();
+    renderCourseGrid();
+  }
+}
+initApp();
+</script>
+</body>
+</html>
